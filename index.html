@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruang Tuduh - Pendamping Batin Anda</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Alpine.js to handle interactive state -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Tailwind CSS v3 via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                        serif: ['"Instrument Serif"', 'Georgia', 'serif'],
+                        mono: ['"JetBrains Mono"', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        [x-cloak] { display: none !important; }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-[#F9F5FF]/30 min-h-screen text-slate-800 font-sans antialiased selection:bg-purple-100 selection:text-purple-900" x-data="appState()" x-init="initApp()">
+
+    <!-- ONBOARDING OVERLAY SCREEN -->
+    <div x-show="!profile" class="fixed inset-0 bg-white z-50 flex items-center justify-center p-4 animate-fade-in" x-cloak>
+        <div class="max-w-md w-full space-y-8 bg-white p-6 md:p-8 rounded-3xl border border-purple-100 shadow-2xl relative overflow-hidden">
+            <!-- Decorative Blobs -->
+            <div class="absolute -top-12 -right-12 w-32 h-32 bg-purple-100/50 rounded-full blur-2xl"></div>
+            <div class="absolute -bottom-12 -left-12 w-32 h-32 bg-pink-50 rounded-full blur-2xl"></div>
+            
+            <div class="text-center relative">
+                <div class="mx-auto w-16 h-16 rounded-2xl bg-purple-100 flex items-center justify-center text-purple-600 text-2xl mb-4 shadow-sm">
+                    🌸
+                </div>
+                <h1 class="text-2xl font-extrabold text-slate-800 tracking-tight font-sans">Ruang Tuduh</h1>
+                <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+                    Selamat datang di ruang bimbingan aman dan rahasia Anda. Sebelum kita berbincang secara mendalam, izinkan kami mengenal Anda secara singkat.
+                </p>
+            </div>
+
+            <form @submit.prevent="submitProfile" class="space-y-5 relative">
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 font-mono">1. Nama Lengkap / Panggilan</label>
+                    <input type="text" x-model="tempProfile.nama" required placeholder="Tulis nama panggilan Anda..." class="w-full bg-slate-50 border border-slate-200 focus:border-pink-500 focus:bg-white focus:outline-none rounded-2xl px-4 py-3 text-sm text-slate-700 transition-all placeholder:text-slate-400">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 font-mono">2. Umur Anda</label>
+                        <input type="number" x-model.number="tempProfile.umur" required min="5" max="99" placeholder="Usia..." class="w-full bg-slate-50 border border-slate-200 focus:border-pink-500 focus:bg-white focus:outline-none rounded-2xl px-4 py-3 text-sm text-slate-700 transition-all placeholder:text-slate-400">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 font-mono">3. Jenis Kelamin</label>
+                        <select x-model="tempProfile.jenisKelamin" required class="w-full bg-slate-50 border border-slate-200 focus:border-pink-500 focus:bg-white focus:outline-none rounded-2xl px-3 py-3 text-sm text-slate-700 transition-all appearance-none cursor-pointer">
+                            <option value="Laki-laki">Laki-laki 👱‍♂️</option>
+                            <option value="Perempuan">Perempuan 👩‍🦰</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold text-sm py-4 rounded-2xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer">
+                    Mulai Pertemuan <span class="text-base">✨</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN SHELL NAVIGATION (WHEN PROFILE EXISTS) -->
+    <div x-show="profile" class="min-h-screen flex flex-col" x-cloak>
+        
+        <!-- HEADER PANEL -->
+        <header class="bg-white border-b border-pink-100/60 sticky top-0 z-40 backdrop-blur-md bg-white/95">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                <!-- Branding -->
+                <div class="flex items-center gap-2.5">
+                    <span class="text-xl">🌸</span>
+                    <div>
+                        <h2 class="text-sm font-black text-rose-955 leading-none tracking-wide">RUANG TUDUH</h2>
+                        <span class="text-[9px] font-mono text-pink-650 uppercase tracking-widest leading-none mt-1 block font-bold">Layanan Bimbingan & Meditasi</span>
+                    </div>
+                </div>
+                
+                <!-- Profile Action -->
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2 bg-pink-50/50 border border-pink-100 rounded-2xl px-3 py-1.5 shadow-3xs text-xs">
+                        <span class="text-sm" x-text="profile && profile.jenisKelamin === 'Laki-laki' ? '👱‍♂️' : '👩‍🦰'"></span>
+                        <div class="text-left flex flex-col justify-center">
+                            <span class="text-[11px] font-black text-slate-700 leading-tight" x-text="profile && profile.nama"></span>
+                            <span class="text-[9px] text-pink-700 font-bold leading-none mt-0.5" x-text="profile && `${profile.umur} Tahun • ${profile.jenisKelamin}`"></span>
+                        </div>
+                    </div>
+                    
+                    <button @click="resetApp" class="p-2 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-slate-500 cursor-pointer" title="Keluar / Reset Data">
+                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+         <!-- CONTENT GRID -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full flex flex-col md:flex-row gap-6">
+            
+            <!-- SIDEBAR MENUS -->
+            <aside class="md:w-64 flex-shrink-0 md:sticky md:top-20 md:self-start space-y-4">
+                <div class="p-1 bg-white border border-pink-100/60 rounded-2xl shadow-3xs space-y-1">
+                    <button @click="activeTab = 'chat'" :class="activeTab === 'chat' ? 'bg-pink-600 text-white shadow-xs font-bold' : 'text-slate-650 hover:bg-slate-50 hover:text-slate-900'" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-xs cursor-pointer">
+                        <i data-lucide="message-square" class="w-4.5 h-4.5 font-bold"></i>
+                        <span>Ruang Tuduh AI</span>
+                    </button>
+                    <button @click="activeTab = 'articles'" :class="activeTab === 'articles' ? 'bg-pink-600 text-white shadow-xs font-bold' : 'text-slate-650 hover:bg-slate-50 hover:text-slate-900'" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-xs cursor-pointer">
+                        <i data-lucide="book-open" class="w-4.5 h-4.5"></i>
+                        <span>Pojok Edukasi Batin</span>
+                    </button>
+                    <button @click="activeTab = 'journal'" :class="activeTab === 'journal' ? 'bg-pink-600 text-white shadow-xs font-bold' : 'text-slate-650 hover:bg-slate-50 hover:text-slate-900'" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-xs cursor-pointer">
+                        <i data-lucide="book" class="w-4.5 h-4.5"></i>
+                        <span>Catatan Emosiku</span>
+                    </button>
+                    <button @click="activeTab = 'sos'" :class="activeTab === 'sos' ? 'bg-red-600 text-white shadow-xs font-bold font-mono' : 'text-red-600 hover:bg-red-50 hover:text-red-900'" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-xs cursor-pointer">
+                        <i data-lucide="heart-pulse" class="w-4.5 h-4.5"></i>
+                        <span>Layanan Darurat SOS</span>
+                    </button>
+                    <button @click="activeTab = 'quiz'" :class="activeTab === 'quiz' ? 'bg-pink-600 text-white shadow-xs font-bold' : 'text-slate-650 hover:bg-slate-50 hover:text-slate-900'" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-xs cursor-pointer">
+                        <i data-lucide="clipboard-check" class="w-4.5 h-4.5"></i>
+                        <span>Kuis Beban Batin</span>
+                    </button>
+                </div>
+                
+                <!-- Sidebar Emergency SOS Widget -->
+                <div class="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-3xl p-4 text-white relative overflow-hidden shadow-2xs">
+                    <div class="absolute -right-6 -bottom-6 opacity-10 w-24 h-24 bg-white rounded-full"></div>
+                    <h3 class="font-black text-[10px] tracking-widest text-purple-100 uppercase">Saluran Tanggap Cepat</h3>
+                    <p class="text-[10px] text-purple-50/80 leading-relaxed mt-1.5 italic font-serif">
+                        Pundakmu tidak harus memikul lara ini sendirian. Tersedia konsultasi gratis & terlindungi kerahasiaannya.
+                    </p>
+                    <div class="space-y-1.5 mt-3">
+                        <a href="tel:119" class="text-[9px] font-mono font-black bg-white/10 hover:bg-white/20 px-2 py-1.5 rounded-lg text-center block transition-all uppercase tracking-wide">
+                            Kemenkes SEJIWA: 119 (Ext. 8)
+                        </a>
+                        <a href="https://wa.me/6282297997778?text=Halo%20Ruang%20Tuduh%20Krisis%2C%20saya%20butuh%20bantuan%20segera" target="_blank" rel="noopener noreferrer" class="text-[9px] font-mono font-black bg-white text-emerald-700 hover:bg-emerald-50 px-2 py-1.5 rounded-lg text-center flex items-center justify-center gap-1 transition-all">
+                            <i data-lucide="message-circle" class="w-3.5 h-3.5 shrink-0"></i>
+                            WA CRISIS LINE (24 Jam)
+                        </a>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- CENTRAL CONTENT CONTAINER -->
+            <section class="flex-1 min-w-0">
+                
+                <!-- TAB 1: CONSELING CHATBOT -->
+                <div x-show="activeTab === 'chat'" x-transition class="space-y-4 flex flex-col h-[calc(100vh-12rem)] min-h-[500px]">
+                    <div class="bg-white border border-pink-100 rounded-3xl p-4 md:p-5 flex-1 flex flex-col shadow-2xs">
+                        
+                        <!-- Chat Header -->
+                        <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-9 h-9 bg-pink-100 text-pink-650 rounded-xl flex items-center justify-center animate-pulse">
+                                    <i data-lucide="sparkles" class="w-4.5 h-4.5"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Ruangan Curahan Batin</h3>
+                                    <span class="text-[9px] text-emerald-600 flex items-center gap-1 font-mono font-bold">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span> AKTIF & TERENKRIPSI
+                                    </span>
+                                </div>
+                            </div>
+                            <button @click="clearChat" class="text-[10px] font-bold text-slate-400 hover:text-rose-600 transition-colors flex items-center gap-1 bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200 cursor-pointer">
+                                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Reset Chat
+                            </button>
+                        </div>
+
+                        <!-- Chat Feed Space -->
+                        <div class="flex-1 overflow-y-auto py-4 space-y-4 px-1" id="chat-messages-container">
+                            <template x-for="msg in messages" :key="msg.id">
+                                <div class="flex flex-col" :class="msg.sender === 'user' ? 'items-end' : 'items-start'">
+                                    <div class="max-w-[85%] rounded-2xl p-3 md:p-3.5 text-xs md:text-sm shadow-3xs leading-relaxed" 
+                                         :class="msg.sender === 'user' ? 'bg-pink-600 text-white rounded-tr-none font-medium text-left' : 'bg-slate-50 border border-slate-150 text-slate-700 rounded-tl-none font-sans text-left'">
+                                        <p x-html="msg.text" class="whitespace-pre-line"></p>
+                                    </div>
+                                    <span class="text-[9px] text-slate-400 font-mono mt-1 px-1.5" x-text="formatTime(msg.timestamp)"></span>
+                                </div>
+                            </template>
+                            
+                            <!-- AI Loading Bounce -->
+                            <div x-show="chatLoading" class="flex flex-col items-start" x-cloak>
+                                <div class="bg-slate-50 border border-slate-150 rounded-2xl rounded-tl-none p-3 shadow-3xs flex items-center gap-1.5">
+                                    <span class="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style="animation-delay: 0ms"></span>
+                                    <span class="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style="animation-delay: 150ms"></span>
+                                    <span class="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style="animation-delay: 300ms"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Prompts Buttons -->
+                        <div class="border-t border-slate-100 pt-3 space-y-2 text-left">
+                            <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Butuh topik awal? Pilih saran curhat di bawah:</div>
+                            <div class="flex gap-2 overflow-x-auto pb-1">
+                                <template x-for="chip in quickChips" :key="chip">
+                                    <button @click="sendSuggestedPrompt(chip)" class="text-[10px] bg-slate-50 hover:bg-pink-50 hover:text-pink-700 hover:border-pink-200 text-slate-600 border border-slate-200 px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors cursor-pointer font-medium">
+                                        <span x-text="chip"></span>
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Typing form -->
+                        <form @submit.prevent="submitMessage" class="mt-3 flex gap-2">
+                            <input type="text" x-model="newMessageText" placeholder="Ketik curahan perasaan Anda di sini..." class="flex-1 bg-slate-50 border border-slate-200 focus:border-pink-500 focus:bg-white focus:outline-none rounded-2xl px-4 text-xs md:text-sm text-slate-700 transition-all">
+                            <button type="submit" :disabled="!newMessageText.trim() || chatLoading" class="bg-pink-600 hover:bg-pink-700 text-white font-bold px-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-1 cursor-pointer disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed">
+                                <i data-lucide="send" class="w-4 h-4"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- TAB 2: PORTAL EDUKASI BATIN -->
+                <div x-show="activeTab === 'articles'" x-transition class="space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="text-left">
+                            <h2 class="text-base font-extrabold text-slate-800 flex items-center gap-2">
+                                <span class="bg-pink-100 text-pink-650 w-7 h-7 rounded-lg flex items-center justify-center text-xs">📖</span> Pojok Edukasi & Bimbingan Remaja
+                            </h2>
+                            <p class="text-xs text-slate-500 mt-1">Artikel penuntun ketenangan batin, regulasi emosi, dan ketahanan dalam hubungan sosial.</p>
+                        </div>
+                        
+                        <!-- Filter Pills -->
+                        <div class="flex gap-1 bg-slate-100 p-1 rounded-xl self-start">
+                            <button @click="selectedCategory = 'all'" :class="selectedCategory === 'all' ? 'bg-white shadow-3xs text-pink-700 font-bold' : 'text-slate-500'" class="px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-wide transition-colors whitespace-nowrap font-bold">Semua</button>
+                            <button @click="selectedCategory = 'Mental Health'" :class="selectedCategory === 'Mental Health' ? 'bg-white shadow-3xs text-pink-700 font-bold' : 'text-slate-500'" class="px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-wide transition-colors whitespace-nowrap font-bold">Kesehatan Mental</button>
+                            <button @click="selectedCategory = 'Relationship'" :class="selectedCategory === 'Relationship' ? 'bg-white shadow-3xs text-pink-700 font-bold' : 'text-slate-500'" class="px-1.5 py-1.5 rounded-lg text-[10px] uppercase tracking-wide transition-colors whitespace-nowrap font-bold">Relasi Sosial</button>
+                            <button @click="selectedCategory = 'Self Growth'" :class="selectedCategory === 'Self Growth' ? 'bg-white shadow-3xs text-pink-700 font-bold' : 'text-slate-500'" class="px-1.5 py-1.5 rounded-lg text-[10px] uppercase tracking-wide transition-colors whitespace-nowrap font-bold">Self-Growth</button>
+                        </div>
+                    </div>
+
+                    <!-- Layout split -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+                        <!-- Left split: List of cards -->
+                        <div class="lg:col-span-5 space-y-3.5 text-left">
+                            <template x-for="article in getFilteredArticles()" :key="article.id">
+                                <div @click="selectedArticle = article" :class="selectedArticle && selectedArticle.id === article.id ? 'border-pink-500 ring-2 ring-pink-500/5 shadow-md scale-[1.01]' : 'border-slate-100 hover:border-pink-100 hover:shadow-2xs bg-white'" class="border rounded-2xl p-4 cursor-pointer transition-all flex flex-col justify-between h-36">
+                                    <div class="space-y-1.5">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-[9px] font-extrabold text-pink-650 uppercase tracking-widest bg-pink-50 px-2 py-0.5 rounded-md" x-text="article.category"></span>
+                                            <span class="text-[9px] font-mono text-slate-400" x-text="article.readTime"></span>
+                                        </div>
+                                        <h4 class="text-xs font-bold text-slate-800 line-clamp-2" x-text="article.title"></h4>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-pink-650 flex items-center gap-1 mt-2">
+                                        Baca ulasan lengkap <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                                    </span>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Right split: Selected reader content -->
+                        <div class="lg:col-span-7 bg-white border border-pink-100 rounded-3xl p-5 md:p-6 shadow-2xs min-h-[380px] flex flex-col justify-between text-left">
+                            <div x-show="selectedArticle" class="space-y-4">
+                                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                                    <span class="bg-pink-50 text-pink-600 text-[10px] font-extrabold px-2.5 py-1 rounded-md uppercase tracking-widest" x-text="selectedArticle && selectedArticle.category"></span>
+                                    <span class="text-[10px] font-mono text-slate-400" x-text="selectedArticle && `${selectedArticle.readTime} bacaan`"></span>
+                                </div>
+                                <h3 class="text-sm md:text-base font-black text-slate-800 leading-snug" x-text="selectedArticle && selectedArticle.title"></h3>
+                                <div class="text-xs text-slate-600 leading-relaxed font-sans whitespace-pre-line" x-html="selectedArticle && selectedArticle.content"></div>
+                                
+                                <div class="bg-pink-50/50 border border-pink-100/35 p-4 rounded-2xl space-y-3 mt-4">
+                                    <div class="flex items-center gap-1.5">
+                                        <i data-lucide="sparkles" class="w-4 h-4 text-pink-600 animate-pulse"></i>
+                                        <span class="text-[10px] font-black text-pink-900 uppercase tracking-widest">Praktek Pendampingan</span>
+                                    </div>
+                                    <p class="text-[10px] leading-relaxed text-slate-600">Ingin mendiskusikan topik pembelajaran di atas secara pribadi bersama AI Counselor?</p>
+                                    <button @click="sendSuggestedPrompt(selectedArticle.suggestedPrompt)" class="w-full bg-pink-600 hover:bg-pink-700 text-white rounded-xl py-2 px-3 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                                        Undang AI Membahas Ini <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Empty State Reader -->
+                            <div x-show="!selectedArticle" class="flex-1 flex flex-col items-center justify-center text-center py-12 px-4 space-y-3">
+                                <div class="w-12 h-12 rounded-xl bg-pink-50 flex items-center justify-center text-pink-500">
+                                    <i data-lucide="book-open" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-black text-slate-700">Pilih Bacaan Edukasi</p>
+                                    <p class="text-[10px] text-slate-400 mt-1 max-w-xs">Silakan pilih salah satu ulasan artikel di sisi kiri untuk membaca ulasan mendalam.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: CATATAN MOOD EMOSI -->
+                <div x-show="activeTab === 'journal'" x-transition class="space-y-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                        
+                        <!-- Input Journal Card -->
+                        <div class="lg:col-span-12 lg:col-span-5 bg-white border border-purple-100 rounded-3xl p-5 md:p-6 shadow-2xs space-y-5 text-left">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-lg bg-purple-600 flex items-center justify-center text-white">
+                                    <i data-lucide="book" class="w-4.5 h-4.5"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Tulis Catatan Emosi</h3>
+                                    <p class="text-[9px] text-slate-400">Tuangkan kecemasan atau kesenangan harian Anda agar batin terbebas.</p>
+                                </div>
+                            </div>
+
+                            <form @submit.prevent="submitJournal" class="space-y-4">
+                                <!-- Emojis mood selection -->
+                                <div class="space-y-1.5">
+                                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">1. Pilih Emosi Anda Saat Ini:</label>
+                                    <div class="grid grid-cols-3 gap-2">
+                                        <template x-for="(config, key) in moodConfig" :key="key">
+                                            <button type="button" @click="selectedMood = key" :class="selectedMood === key ? 'bg-purple-100 border-purple-500 ring-2 ring-purple-500/10 scale-[1.03] font-bold text-purple-950' : 'bg-white border-slate-100 text-slate-700'" class="border rounded-xl p-2 flex flex-col items-center justify-center gap-1 text-[10.5px] transition-all hover:border-purple-200 cursor-pointer">
+                                                <span class="text-xl" x-text="config.emoji"></span>
+                                                <span x-text="config.label"></span>
+                                            </button>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <!-- Intensity bar -->
+                                <div class="space-y-1.5">
+                                    <div class="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">
+                                        <span>2. Tingkat Kekuatan Emosi:</span>
+                                        <span class="text-purple-600 font-mono text-xs font-black" x-text="`Skala ${journalIntensity}/5`"></span>
+                                    </div>
+                                    <input type="range" min="1" max="5" x-model.number="journalIntensity" class="w-full accent-purple-600 cursor-pointer h-1.5 bg-purple-50 rounded-lg appearance-none">
+                                </div>
+
+                                <!-- Note -->
+                                <div class="space-y-1.5">
+                                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">3. Narasi Perasaan / Isi Pikiran:</label>
+                                    <textarea x-model="journalNote" rows="3" placeholder="Bagikan apa yang membebani pikiran Anda atau kebahagiaan yang sedang dirasakan..." class="w-full bg-slate-50 border border-slate-200 focus:border-purple-500 focus:bg-white focus:outline-none rounded-xl p-3 text-xs text-slate-705 placeholder:text-slate-400 font-sans"></textarea>
+                                </div>
+
+                                <!-- Gratitude -->
+                                <div class="space-y-1.5">
+                                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">4. Tulis Hal Kecil Yang Disyukuri:</label>
+                                    <input type="text" x-model="journalGratitude" placeholder="Contoh: bisa minum air dingin, tidur nyenyak, dll..." class="w-full bg-slate-50 border border-slate-200 focus:border-purple-500 focus:bg-white focus:outline-none rounded-xl px-3.5 py-3 text-xs text-slate-705 placeholder:text-slate-400 font-sans">
+                                </div>
+
+                                <!-- CTA button -->
+                                <button type="submit" :disabled="!journalNote.trim() && !journalGratitude.trim()" class="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-bold text-xs py-3.5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer">
+                                    Simpan dalam Jurnal <i data-lucide="check" class="w-4 h-4"></i>
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Right split: Logs & Analytics -->
+                        <div class="lg:col-span-12 lg:col-span-7 space-y-4 text-left">
+                            <!-- Analytics Summary -->
+                            <div class="bg-white border border-purple-100 rounded-3xl p-4 md:p-5 shadow-3xs flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xl">📊</span>
+                                    <div>
+                                        <h4 class="text-xs font-black text-slate-700 uppercase tracking-wider">Jejak Sejarah Batinmu</h4>
+                                        <p class="text-[9px] text-slate-400" x-text="`Sebanyak ${journalEntries.length} peristiwa tumpahan emosi tersimpan lokal & aman.`"></p>
+                                    </div>
+                                </div>
+                                <div class="flex gap-2">
+                                    <span class="text-[10px] font-mono font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-1 rounded-md">
+                                        Offline Backup
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <h4 class="text-xs font-bold text-slate-550 uppercase tracking-widest flex items-center gap-1.5 px-1 font-mono">
+                                    <i data-lucide="calendar" class="w-4 h-4 text-purple-600"></i> Riwayat Jurnal Emosional
+                                </h4>
+
+                                <!-- Logs Container -->
+                                <div class="space-y-3.5">
+                                    <template x-for="item in journalEntries" :key="item.id">
+                                        <div class="bg-white border border-purple-100 rounded-2xl p-4 shadow-3xs space-y-3 relative">
+                                            <!-- Delete entryBtn -->
+                                            <button @click="deleteJournal(item.id)" class="absolute top-4 right-4 text-slate-300 hover:text-rose-600 transition-colors p-1 cursor-pointer" title="Hapus catatan">
+                                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                            </button>
+
+                                            <!-- Mood indicator -->
+                                            <div class="flex items-center gap-2">
+                                                <div :class="moodConfig[item.mood].bg + ' ' + moodConfig[item.mood].border + ' ' + moodConfig[item.mood].text" class="border flex items-center gap-1.5 px-3 py-1 rounded-xl text-[10px] font-black">
+                                                    <span x-text="moodConfig[item.mood].emoji"></span>
+                                                    <span x-text="moodConfig[item.mood].label"></span>
+                                                </div>
+                                                <span class="text-[9px] text-slate-450 font-mono font-semibold" x-text="formatDate(item.date)"></span>
+                                            </div>
+
+                                            <div class="space-y-1">
+                                                <p class="text-xs text-slate-700 leading-relaxed italic font-sans" x-text="item.note || 'Tidak menulis deskripsi ceritaseorang diri'"></p>
+                                                <div x-show="item.gratitude" class="text-[10.5px] text-emerald-750 bg-emerald-50/50 border border-emerald-100/35 px-3 py-2 rounded-xl mt-1 space-y-1">
+                                                    <span class="font-extrabold text-[9px] uppercase tracking-wider block text-emerald-800">✨ Syukur kecilku:</span>
+                                                    <p class="font-medium" x-text="item.gratitude"></p>
+                                                </div>
+                                            </div>
+
+                                            <!-- Counselor reflective response -->
+                                            <div class="bg-purple-50/40 border border-purple-100/35 p-3 rounded-xl space-y-1">
+                                                <div class="flex items-center gap-1 font-black text-[9px] text-purple-700 uppercase tracking-widest font-mono">
+                                                    <i data-lucide="heart" class="w-3 h-3 text-purple-600 fill-purple-600/10"></i> Refleksi Batin AI Konselor
+                                                </div>
+                                                <p class="text-[11px] text-slate-600 leading-relaxed italic font-serif" x-text="item.aiReflection"></p>
+                                            </div>
+                                        </div>
+                                    </template>
+
+                                    <!-- Empty state logs -->
+                                    <div x-show="journalEntries.length === 0" class="bg-white border border-purple-100 rounded-2xl p-10 text-center text-slate-400 flex flex-col items-center justify-center gap-2">
+                                        <div class="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-purple-400 mb-2">
+                                            <i data-lucide="book" class="w-5 h-5"></i>
+                                        </div>
+                                        <p class="text-xs font-bold text-slate-600">Jurnal Batin Masih Kosong</p>
+                                        <p class="text-[10px] text-slate-400 leading-relaxed max-w-xs">Bila Anda sedang lelah atau bersemangat, tuangkan sejenak emosi tersebut di kolom kiri.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 4: LAYANAN EMERGENCY SOS -->
+                <div x-show="activeTab === 'sos'" x-transition class="space-y-6 text-left" x-cloak>
+                    <!-- Intro Header Banner -->
+                    <div class="bg-gradient-to-r from-red-500/10 via-purple-500/15 to-indigo-500/10 border border-red-200/50 rounded-2xl p-6 md:p-8 relative overflow-hidden shadow-2xs">
+                        <div class="absolute right-6 top-6 opacity-5">
+                            <i data-lucide="heart-pulse" class="w-32 h-32 text-red-600 animate-pulse"></i>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-red-600 flex items-center justify-center text-white shrink-0 shadow-md">
+                                <i data-lucide="heart-pulse" class="w-6 h-6 animate-pulse"></i>
+                            </div>
+                            <div class="space-y-1.5">
+                                <h2 class="text-xs md:text-sm font-black text-slate-800 uppercase tracking-widest">
+                                    Layanan Tanggap Krisis & Bantuan Jiwa (SOS)
+                                </h2>
+                                <p class="text-[11px] md:text-xs text-slate-600 leading-relaxed font-sans max-w-2xl">
+                                    Jika kamu atau orang terdekat sedang mengalami cobaan emosional yang teramat berat, ada lintasan pikiran putus asa, atau ada dorongan mendalam untuk mencederai diri sendiri, mohon ketahuilah bahwa <strong>pundakmu tidak harus memikulnya sendirian</strong>. Di bawah ini adalah perpanjangan tangan tulus yang siaga mendengarmu secara gratis dan rahasia.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Layout grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                        <!-- LEFT PANEL: HOTLINE TELEPON & CHAT -->
+                        <div class="lg:col-span-6 space-y-4">
+                            <h3 class="text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-2 px-1 font-mono">
+                                <i data-lucide="phone" class="w-4 h-4 text-purple-650"></i> Kontak Telepon & Chat Kedaruratan
+                            </h3>
+
+                            <div class="grid grid-cols-1 gap-3.5">
+                                <!-- SEJIWA Kemenkes -->
+                                <div class="bg-white border border-red-100 p-5 rounded-2xl shadow-3xs space-y-3 transition-all hover:shadow-xs">
+                                    <div class="flex items-center justify-between flex-wrap gap-2">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-7 h-7 rounded-lg bg-red-100 flex items-center justify-center text-red-600">
+                                                <i data-lucide="phone" class="w-3.5 h-3.5"></i>
+                                            </div>
+                                            <span class="text-xs font-black text-red-950 uppercase tracking-wide">Kemenkes RI SEJIWA</span>
+                                        </div>
+                                        <span class="bg-red-600 text-white font-mono text-[9px] font-black px-2 py-0.5 rounded-md">Hotline: 119 Ext. 8</span>
+                                    </div>
+                                    <p class="text-[11px] text-slate-550 leading-relaxed font-sans">
+                                        Layanan resmi Kemenkes RI untuk mengatasi situasi kedaruratan batin, depresi berat, serangan panik, dan kecemasan ekstrem secara gratis dengan pendampingan psikolog resmi.
+                                    </p>
+                                    <div class="pt-1.5 border-t border-red-50 flex justify-between items-center flex-wrap gap-2">
+                                        <a href="tel:119" class="bg-red-600 hover:bg-red-700 text-white font-black text-[10px] px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer">
+                                            <i data-lucide="phone" class="w-3 h-3"></i> Panggil 119 (Ext 8)
+                                        </a>
+                                        <span class="text-[9px] font-black text-red-500 font-mono tracking-wider">BEBAS PULSA & 24 JAM</span>
+                                    </div>
+                                </div>
+
+                                <!-- WA Emergency -->
+                                <div class="bg-white border border-emerald-100 p-5 rounded-2xl shadow-3xs space-y-3 transition-all hover:shadow-xs">
+                                    <div class="flex items-center justify-between flex-wrap gap-2">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-7 h-7 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600">
+                                                <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                                            </div>
+                                            <span class="text-xs font-black text-emerald-950 uppercase tracking-wide">WA Emergency Ruang Tuduh</span>
+                                        </div>
+                                        <span class="bg-emerald-500 text-white font-mono text-[9px] font-black px-2 py-0.5 rounded-md">SIAP 24 JAM</span>
+                                    </div>
+                                    <p class="text-[11px] text-slate-550 leading-relaxed font-sans">
+                                        Layanan bimbingan krisis/darurat psikis berbasis chat untuk krisis emosi dari tim internal Ruang Tuduh. Relawan terlatih kami siap mendampingi masa kelammu secara privat.
+                                    </p>
+                                    <div class="pt-1.5 border-t border-emerald-50 flex justify-between items-center flex-wrap gap-2">
+                                        <a href="https://wa.me/6282297997778?text=Halo%20Ruang%20Tuduh%20Krisis%2C%20saya%20butuh%20teman%20bicara%20secara%20pribadi." target="_blank" rel="noopener noreferrer" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[10px] px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer">
+                                            <i data-lucide="message-circle" class="w-3 h-3"></i> WhatsApp: 0822-9799-7778
+                                        </a>
+                                        <span class="text-[9px] font-mono text-emerald-600 font-black">RESPONS JALUR CEPAT</span>
+                                    </div>
+                                </div>
+
+                                <!-- LISA Suicide Prevention -->
+                                <div class="bg-white border border-purple-100 p-5 rounded-2xl shadow-3xs space-y-3 transition-all hover:shadow-xs">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-7 h-7 rounded-lg bg-purple-100 flex items-center justify-center text-purple-650">
+                                                <i data-lucide="phone" class="w-3.5 h-3.5"></i>
+                                            </div>
+                                            <span class="text-xs font-black text-purple-950 uppercase tracking-wide">LISA Suicide Hotline</span>
+                                        </div>
+                                        <span class="bg-purple-100 text-purple-750 font-mono text-[9px] font-black px-2 py-0.5 rounded-md">BANTUAN JIWA</span>
+                                    </div>
+                                    <p class="text-[11px] text-slate-555 leading-relaxed font-sans">
+                                        Layanan tanggap Love Inside Suicide Awareness khusus mengawal pencegahan bunuh diri, pikiran penyerangan diri, rasa terisolasi ekstrem, kecemasan trauma berat, dan keputusasaan psikis.
+                                    </p>
+                                    <div class="pt-1.5 border-t border-purple-50 flex justify-between items-center">
+                                        <a href="tel:08113855472" class="bg-purple-600 hover:bg-purple-700 text-white font-black text-[10px] px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer">
+                                            <i data-lucide="phone" class="w-3 h-3"></i> Hubungi LISA: 0811-3855-472
+                                        </a>
+                                        <span class="text-[9px] font-mono text-purple-600 font-black">24 JAM SIAGA NASIONAL</span>
+                                    </div>
+                                </div>
+
+                                <!-- Yayasan Pulih & SAPA 129 -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-2xl text-left space-y-1.5">
+                                        <span class="text-[10px] font-black text-slate-800 uppercase block font-mono">Yayasan Pulih</span>
+                                        <p class="text-[10px] text-slate-500 leading-relaxed font-sans">
+                                            Konseling penanganan trauma, stres pasca kekerasan perundungan (bullying), relasi toksik, KDRT, dan bimbingan psikis.
+                                        </p>
+                                        <a href="https://wa.me/628118436633" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-[10px] font-black text-purple-700 hover:underline">
+                                            <i data-lucide="message-circle" class="w-3 h-3"></i> Chat WA: 0811-8436-633
+                                        </a>
+                                    </div>
+
+                                    <div class="bg-slate-50 border border-amber-100 p-4 rounded-2xl text-left space-y-1.5">
+                                        <span class="text-[10px] font-black text-amber-900 uppercase block font-mono">SAPA 129 PPPA</span>
+                                        <p class="text-[10px] text-slate-500 leading-relaxed font-sans">
+                                            Layanan rujukan aduan anak, perundungan siswa sekolah, eksploitasi, kekerasan seksual rujukan Kementerian PPPA.
+                                        </p>
+                                        <a href="tel:129" class="inline-flex items-center gap-1 text-[10px] font-black text-amber-700 hover:underline">
+                                            <i data-lucide="phone" class="w-3 h-3"></i> Hubungi: 129
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- RIGHT PANEL: KANTOR FISIK & UGD MAKASSAR & SULAWESI SELATAN -->
+                        <div class="lg:col-span-6 space-y-4">
+                            <h3 class="text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-2 px-1 font-mono">
+                                <i data-lucide="map-pin" class="w-4 h-4 text-purple-650"></i> Posko Fisik & UGD Kejiwaan 24 Jam Makassar & Sulsel
+                            </h3>
+
+                            <div class="bg-white border border-purple-100 rounded-3xl p-5 shadow-3xs space-y-4">
+                                <div class="flex items-start gap-2 bg-purple-50/50 p-3 rounded-xl border border-purple-100/30">
+                                    <i data-lucide="alert-triangle" class="w-4.5 h-4.5 text-purple-650 shrink-0 mt-0.5"></i>
+                                    <p class="text-[10.5px] text-purple-955 leading-relaxed font-sans">
+                                        <strong>Catatan Penting Layanan Fisik (Makassar):</strong> Jika kondisi batin sangat bergejolak, membahayakan jiwa, atau membutuhkan perlindungan keamanan kejiwaan medis segera secara fisik, silakan langsung bawa ke <strong>UGD Rumah Sakit Khusus Daerah (RSKD) Jiwa atau Rujukan RS Pemerintah</strong> terdaftar di bawah ini. Didukung sepenuhnya oleh BPJS Kesehatan.
+                                    </p>
+                                </div>
+
+                                <div class="space-y-3.5">
+                                    <!-- RSKD Dadi Sulsel -->
+                                    <div class="border border-slate-100 p-3.5 rounded-xl space-y-1.5 hover:border-purple-200 transition-colors">
+                                        <div class="flex justify-between items-start gap-2">
+                                            <h4 class="text-xs font-black text-slate-800 leading-tight">RSKD Dadi Provinsi Sulawesi Selatan (Makassar)</h4>
+                                            <span class="bg-red-50 text-red-650 text-[9px] font-extrabold px-1.5 py-0.5 rounded-sm shrink-0">UGD Jiwa Terpadu 24 Jam</span>
+                                        </div>
+                                        <p class="text-[10.5px] text-slate-500 leading-relaxed font-sans">
+                                            Rumah Sakit Khusus Daerah rujukan utama kesehatan jiwa terbesar di wilayah Indonesia Timur. Dilengkapi psikiater siaga 24 jam dan unit kedaruratan psikis intensif.
+                                        </p>
+                                        <div class="flex items-baseline gap-1 text-[9.5px] text-slate-400 font-sans pt-1">
+                                            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-purple-600 shrink-0 mt-0.5"></i>
+                                            <span>Jl. Lanto Daeng Pasewang No.34, Makassar. Telp: (0411) 873120 / (0411) 854005</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- RSUP Dr. Wahidin Sudirohusodo -->
+                                    <div class="border border-slate-100 p-3.5 rounded-xl space-y-1.5 hover:border-purple-200 transition-colors">
+                                        <div class="flex justify-between items-start gap-2">
+                                            <h4 class="text-xs font-black text-slate-800 leading-tight">RSUP Dr. Wahidin Sudirohusodo (Makassar)</h4>
+                                            <span class="bg-red-50 text-red-650 text-[9px] font-extrabold px-1.5 py-0.5 rounded-sm shrink-0">UGD Medis 24 Jam</span>
+                                        </div>
+                                        <p class="text-[10.5px] text-slate-500 leading-relaxed font-sans">
+                                            Rumah sakit rujukan nasional pemerintah pusat dengan departemen kejiwaan/psikiatri komprehensif, menangani depresi akut, trauma fisik & batin, serta kegawatan penyerangan diri.
+                                        </p>
+                                        <div class="flex items-baseline gap-1 text-[9.5px] text-slate-400 font-sans pt-1">
+                                            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-purple-600 shrink-0 mt-0.5"></i>
+                                            <span>Jl. Perintis Kemerdekaan Km.11, Tamalanrea, Makassar. Telp: (0411) 581818</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- RSUD Haji Pemprov Sulsel -->
+                                    <div class="border border-slate-100 p-3.5 rounded-xl space-y-1.5 hover:border-purple-200 transition-colors">
+                                        <div class="flex justify-between items-start gap-2">
+                                            <h4 class="text-xs font-black text-slate-800 leading-tight">RSUD Haji Provinsi Sulawesi Selatan (Makassar)</h4>
+                                            <span class="bg-red-50 text-red-650 text-[9px] font-extrabold px-1.5 py-0.5 rounded-sm shrink-0">UGD & Klinik Psikiatri</span>
+                                        </div>
+                                        <p class="text-[10.5px] text-slate-500 leading-relaxed font-sans">
+                                            Rumah sakit umum daerah milik Pemprov Sulsel dengan klinik spesialis kedokteran jiwa dan UGD terpadu ramah BPJS untuk penanganan keputusasaan ekstrim dan histeria.
+                                        </p>
+                                        <div class="flex items-baseline gap-1 text-[9.5px] text-slate-400 font-sans pt-1">
+                                            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-purple-600 shrink-0 mt-0.5"></i>
+                                            <span>Jl. Daeng Ngeppe No.14, Makassar. Telp: (0411) 8213600</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- RS Universitas Hasanuddin -->
+                                    <div class="border border-slate-100 p-3.5 rounded-xl space-y-1.5 hover:border-purple-200 transition-colors">
+                                        <div class="flex justify-between items-start gap-2">
+                                            <h4 class="text-xs font-black text-slate-800 leading-tight">RS Universitas Hasanuddin (UNHAS - Makassar)</h4>
+                                            <span class="bg-red-50 text-red-650 text-[9px] font-extrabold px-1.5 py-0.5 rounded-sm shrink-0">UGD Terpadu Akademik</span>
+                                        </div>
+                                        <p class="text-[10.5px] text-slate-500 leading-relaxed font-sans">
+                                            Pusat rujukan akademik tinggi yang menyediakan konseling klinis, terapi perilaku kognitif, evaluasi psikoedukasi siswa/remaja, serta penanganan trauma krisis mental.
+                                        </p>
+                                        <div class="flex items-baseline gap-1 text-[9.5px] text-slate-400 font-sans pt-1">
+                                            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-purple-600 shrink-0 mt-0.5"></i>
+                                            <span>Jl. Perintis Kemerdekaan Km.10, Tamalanrea, Makassar. Telp: (0411) 591331</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Trust badging Safeguard -->
+                    <div class="bg-white border border-emerald-100 rounded-2xl p-4 flex items-start gap-3">
+                        <i data-lucide="shield" class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5"></i>
+                        <p class="text-[10.5px] text-slate-650 leading-relaxed font-sans">
+                            <strong>Etika & Perlindungan Rahasia Terjamin:</strong> Seluruh panggilan darurat, chat krisis batin, identitas rahasia, serta rekaman curahan emosi bersifat sangat steril dari publikasi. Jangan menanggung beban ini sendiri, pautkan ketenangan batin Anda bersama kami.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- TAB 5: KUIS BEBAN BATIN -->
+                <div x-show="activeTab === 'quiz'" x-transition class="space-y-6" x-cloak>
+                    <div class="max-w-2xl mx-auto bg-white border border-pink-100 rounded-3xl p-6 md:p-8 shadow-2xs space-y-6 text-left">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-pink-100 text-pink-650 rounded-2xl flex items-center justify-center">
+                                <i data-lucide="clipboard-check" class="w-5 h-5 animate-pulse"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Kuis Analitik Beban Batin</h3>
+                                <p class="text-[10px] text-slate-400">Ketahuilah gambaran akumulasi stres remaja saat ini agar bisa mengambil tindakan sehat.</p>
+                            </div>
+                        </div>
+
+                        <!-- Progress info -->
+                        <div x-show="quizIndex < quizQuestions.length" class="space-y-1">
+                            <div class="flex justify-between items-center text-[10px] text-slate-400 uppercase font-bold tracking-wider font-mono">
+                                <span x-text="`SOAL ${quizIndex + 1} DARI ${quizQuestions.length}`"></span>
+                                <span class="text-pink-600" x-text="`${Math.round(((quizIndex) / quizQuestions.length) * 100)}% SELESAI`"></span>
+                            </div>
+                            <!-- Bar progress -->
+                            <div class="w-full bg-slate-150 h-1.5 rounded-lg overflow-hidden">
+                                <div class="bg-pink-600 h-full transition-all" :style="`width: ${((quizIndex) / quizQuestions.length) * 100}%`"></div>
+                            </div>
+                        </div>
+
+                        <!-- Quiz screen handler -->
+                        <div>
+                            <!-- Q & A screen -->
+                            <template x-if="quizIndex < quizQuestions.length">
+                                <div class="space-y-5 animate-fade-in">
+                                    <h4 class="text-sm md:text-base font-extrabold text-slate-800 leading-relaxed" x-text="quizQuestions[quizIndex].question"></h4>
+                                    
+                                    <div class="grid grid-cols-1 gap-2.5">
+                                        <template x-for="(scoreVal, answerText) in quizQuestions[quizIndex].options" :key="scoreVal">
+                                            <button @click="chooseAnswer(scoreVal)" class="w-full bg-slate-50 hover:bg-pink-50/50 hover:border-pink-200 text-slate-700 text-xs md:text-sm text-left p-3.5 border border-slate-200 rounded-2xl transition-all cursor-pointer font-medium flex items-center gap-2">
+                                                <span class="w-4 h-4 rounded-full border border-slate-400 shrink-0 flex items-center justify-center text-[9px] text-pink-600 font-bold" x-text="scoreVal"></span>
+                                                <span x-text="answerText"></span>
+                                            </button>
+                                        </template>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <!-- Results Screen -->
+                            <template x-if="quizIndex >= quizQuestions.length">
+                                <div class="space-y-5 text-center py-6 animate-fade-in">
+                                    <div class="w-20 h-20 bg-pink-100 rounded-full flex items-center justify-center mx-auto text-pink-600 text-3xl">
+                                        🌟
+                                    </div>
+                                    <div class="space-y-2">
+                                        <h3 class="text-sm font-black text-slate-500 uppercase tracking-widest font-mono">Hasil Skor Beban Batin Anda</h3>
+                                        <p class="text-3xl font-black text-slate-800" x-text="`Skor: ${quizScore} / 15`"></p>
+                                        <span class="inline-block bg-pink-100 text-pink-700 text-xs font-black px-4 py-1.5 rounded-full uppercase tracking-wider" x-text="getQuizFeedback(quizScore).level"></span>
+                                    </div>
+
+                                    <p class="text-xs text-slate-600 leading-relaxed max-w-md mx-auto" x-text="getQuizFeedback(quizScore).desc"></p>
+                                    
+                                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 max-w-sm mx-auto text-left space-y-2">
+                                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest font-mono block">Rekomendasi Aksi Batin Sehat:</span>
+                                        <p class="text-[11px] text-slate-655 font-semibold" x-text="getQuizFeedback(quizScore).tip"></p>
+                                    </div>
+
+                                    <div class="pt-4 flex flex-col sm:flex-row justify-center gap-2.5">
+                                        <button @click="resetQuiz" class="bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold px-5 py-3 rounded-xl transition-all cursor-pointer">
+                                            Ulangi Kuis
+                                        </button>
+                                        <button @click="sendSuggestedPrompt(`Saya baru saja melakukan Kuis Beban Batin dan memperoleh skor ${quizScore}/15 (${getQuizFeedback(quizScore).level}). Bolehkah tolong berikan saran bimbingan emosional yang ramah untuk saya?`)" class="bg-pink-600 hover:bg-pink-700 text-white text-xs font-bold px-5 py-3 rounded-xl transition-all shadow-sm cursor-pointer">
+                                            Konsultasi Hasil Kuis Ini <i data-lucide="message-square" class="w-3.5-h-3.5 inline inline-block"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+        </main>
+        
+        <!-- FOOTER -->
+        <footer class="bg-white border-t border-slate-100 mt-12 py-6 text-center text-[10px] tracking-wide text-slate-400 font-mono">
+            &copy; 2026 Ruang Tuduh. Dibuat dengan cinta secara mandiri untuk ketahanan batin remaja Indonesia.
+        </footer>
+    </div>
+
+    <!-- JS LOGIC - ALPINE STATE MANAGEMENT -->
+    <script>
+        function appState() {
+            return {
+                profile: null,
+                tempProfile: {
+                    nama: '',
+                    umur: '',
+                    jenisKelamin: 'Laki-laki'
+                },
+                activeTab: 'chat',
+                newMessageText: '',
+                chatLoading: false,
+                messages: [],
+                quickChips: [
+                    'Kurang percaya diri di sekolah',
+                    'Sulit konsentrasi belajar',
+                    'Merasa dinilai atau dihakimi teman',
+                    'Mengatasi patah hati remaja',
+                    'Cemas berlebihan masa depan'
+                ],
+                
+                // Pojok Edukasi
+                selectedCategory: 'all',
+                selectedArticle: null,
+                articles: [
+                    {
+                        id: 'art-1',
+                        category: 'Mental Health',
+                        readTime: '3 menit',
+                        title: 'Mengatasi Serangan Panik (Panic Attack) & Kecemasan Ekstrem di Sekolah',
+                        content: `Serangan panik seringkali hadir tiba-tiba saat kita menghadapi ujian, presentasi, atau situasi sosial yang ramai. Gejalanya ditandai dengan detak jantung cepat, sesak napas, hingga keringat dingin.
+                        
+                        <strong>Metode Regulasi untuk Menghadapinya:</strong>
+                        1. <strong>Terapkan Teknik Grounding 5-4-3-2-1:</strong> Carilah 5 benda yang bisa dilihat, 4 tekstur yang bisa disentuh, 3 suara yang didengar, 2 bau yang dicium, dan 1 rasa di lidah.
+                        2. <strong>Pola Napas Kotak (Box Breathing):</strong> Tarik napas 4 detik, tahan 4 detik, embuskan lewat mulut 4 detik, tahan kosong 4 detik. Ulangi 3-5 kali untuk menenangkan sistem saraf simpatik Anda.`,
+                        suggestedPrompt: 'Bagaimanakah mendalami teknik Grounding 5-4-3-2-1 untuk mengatasi stres kecemasan sekolah?'
+                    },
+                    {
+                        id: 'art-2',
+                        category: 'Relationship',
+                        readTime: '4 menit',
+                        title: 'Seni Memasang Batasan Diri (Boundaries) Secara Asertif Terhadap Hubungan Toksik',
+                        content: `Sebagai remaja, seringkali kita merasa sungkan (people pleasing) untuk menolak ajakan teman atau merelakan privasi kita dirusak demi bisa masuk ke lingkaran pertemanan tertentu. Padahal, boundaries sangat penting demi kesehatan jiwa.
+                        
+                        <strong>Beberapa Langkah Bersikap Asertif:</strong>
+                        1. Gunakan kalimat bersubjek "Aku" dibanding "Kamu". Contoh: "Aku merasa kurang nyaman jika chat dimalam hari di luar hal penting." ketimbang "Kamu menggangguku."
+                        2. Pahami bahwa menolak secara sopan adalah bentuk kepedulian terhadap kapasitas diri sendiri, bukan tanda keegoisan.`,
+                        suggestedPrompt: 'Bagaimana cara menolak ajakan negatif teman sebaya secara asertif tanpa menyinggung perasaan?'
+                    },
+                    {
+                        id: 'art-3',
+                        category: 'Self Growth',
+                        readTime: '3 menit',
+                        title: 'Merawat Self-Esteem di Tengah Kepungan Standar Media Sosial Yang Tidak Realistis',
+                        content: `Melihat unggahan orang lain yang selalu bersinar tak jarang meredupkan kepercayaan diri kita. Ingatlah bahwa media sosial adalah panggung sandiwara "kurasi hidup", bukan cerminan realitas utuh.
+                        
+                        <strong>Tips Membangun Ketahanan Diri:</strong>
+                        1. Jalankan detoksifikasi digital berkala (misal 1 hari libur scroll per minggu).
+                        2. Fokuslah pada progress diri di dunia nyata, bukan perbandingan jumlah suka (like) atau komentar duni maya.`,
+                        suggestedPrompt: 'Tolong ajarkan langkah praktis merawat kebiasaan postif self-care bagi pertumbuhan batin remaja sehari-hari.'
+                    }
+                ],
+
+                // Mood Journal
+                selectedMood: 'tenang',
+                journalIntensity: 3,
+                journalNote: '',
+                journalGratitude: '',
+                journalEntries: [],
+                moodConfig: {
+                    tenang: { emoji: '🍃', label: 'Tenang', bg: 'bg-emerald-50', border: 'border-emerald-100', text: 'text-emerald-700' },
+                    cemas: { emoji: '🥺', label: 'Cemas', bg: 'bg-orange-50', border: 'border-orange-100', text: 'text-orange-700' },
+                    sedih: { emoji: '💧', label: 'Sedih', bg: 'bg-blue-50', border: 'border-indigo-100', text: 'text-blue-700' },
+                    marah: { emoji: '🔥', label: 'Marah', bg: 'bg-rose-50', border: 'border-rose-100', text: 'text-rose-700' },
+                    lelah: { emoji: '🔋', label: 'Lelah/Burnout', bg: 'bg-amber-50', border: 'border-amber-100', text: 'text-amber-700' },
+                    kewalahan: { emoji: '🌀', label: 'Overwhelmed', bg: 'bg-purple-50', border: 'border-purple-100', text: 'text-purple-700' }
+                },
+
+                // Kuis beban batin
+                quizIndex: 0,
+                quizScore: 0,
+                quizQuestions: [
+                    {
+                        question: "Seberapa sering Anda merasa cemas, khawatir, atau gugup tanpa alasan yang jelas dalam seminggu terakhir?",
+                        options: { "Sangat Jarang / Tidak Pernah": 0, "Kadang-kadang (1-2 hari)": 1, "Sering (3-5 hari)": 2, "Hampir Setiap Hari": 3 }
+                    },
+                    {
+                        question: "Apakah Anda merasa kesulitan untuk berkonsentrasi belajar atau melakukan aktivitas harian karena terlalu memikirkan suatu masalah?",
+                        options: { "Tidak Sama Sekali": 0, "Sedikit Mengganggu": 1, "Sering Mengganggu": 2, "Sangat Sulit Fokus": 3 }
+                    },
+                    {
+                        question: "Bagaimana tingkat kelelahan fisik atau batin yang Anda alami meskipun sudah beristirahat atau tidur?",
+                        options: { "Segar & Bugar": 0, "Sedikit Lelah": 1, "Sangat Letih dan Lesu": 2, "Kelelahan Ekstrem / Burnout": 3 }
+                    },
+                    {
+                        question: "Apakah belakangan ini Anda cenderung menarik diri dari pergaulan teman atau keluarga karena malas berinteraksi secara mental?",
+                        options: { "Tetap Aktif Bergaul": 0, "Hanya Kadang-kadang": 1, "Sering Menyendiri": 2, "Hampir Selalu Menghindar": 3 }
+                    },
+                    {
+                        question: "Seberapa sering Anda mendapati diri Anda merasa sedih, putus asa, atau kehilangan gairah mengerjakan hobi yang Anda sukai?",
+                        options: { "Sangat Jarang": 0, "Hanya Sesekali": 1, "Seringkali Sedih": 2, "Sangat Putus Asa": 3 }
+                    }
+                ],
+
+                // Init Application
+                initApp() {
+                    const savedProfile = localStorage.getItem('ruang_tuduh_user_profile');
+                    if (savedProfile) {
+                        this.profile = JSON.parse(savedProfile);
+                        this.setInitialWelcome();
+                    }
+                    
+                    const savedJournals = localStorage.getItem('ruang_tuduh_journals');
+                    if (savedJournals) {
+                        this.journalEntries = JSON.parse(savedJournals);
+                    }
+
+                    const savedChats = localStorage.getItem('ruang_tuduh_chat_history');
+                    if (savedChats) {
+                        this.messages = JSON.parse(savedChats);
+                    }
+
+                    this.selectedArticle = this.articles[0];
+                    this.$nextTick(() => { this.reinitLucide(); });
+                },
+
+                submitProfile() {
+                    this.profile = { ...this.tempProfile };
+                    localStorage.setItem('ruang_tuduh_user_profile', JSON.stringify(this.profile));
+                    this.setInitialWelcome();
+                },
+
+                setInitialWelcome() {
+                    if (this.messages.length === 0) {
+                        const welcomeMsg = `Halo, ${this.profile.nama}! Saya adalah Ruang Tuduh AI, rekan bimbingan setia Anda. Apa pun tantangan atau kecemasan yang sedang Anda rasakan pada usia yang ke-${this.profile.umur} tahun ini, Anda dapat menyampaikan semuanya secara terbuka di sini tanpa rasa khawatir akan dihakimi. Sesi bimbingan kita terenkripsi dan bersifat rahasia. Saya siap mendengarkan dan mendukung Anda. Mari ceritakan apa yang sedang mengganjal di dalam hati Anda hari ini?`;
+                        this.messages = [{
+                            id: 'init-msg',
+                            sender: 'bot',
+                            text: welcomeMsg,
+                            timestamp: new Date().toISOString()
+                        }];
+                        localStorage.setItem('ruang_tuduh_chat_history', JSON.stringify(this.messages));
+                    }
+                    this.$nextTick(() => { this.scrollToBottom(); this.reinitLucide(); });
+                },
+
+                resetApp() {
+                    if(confirm("Apakah Anda yakin ingin keluar dan mereset profil serta menghapus semua riwayat di peramban ini?")) {
+                        localStorage.removeItem('ruang_tuduh_user_profile');
+                        localStorage.removeItem('ruang_tuduh_journals');
+                        localStorage.removeItem('ruang_tuduh_chat_history');
+                        this.profile = null;
+                        this.messages = [];
+                        this.journalEntries = [];
+                        this.tempProfile = { nama: '', umur: '', jenisKelamin: 'Laki-laki' };
+                        this.activeTab = 'chat';
+                    }
+                },
+
+                // Simulated Counselor AI responses matching youth issues
+                getSimulatedCounselResponse(userText) {
+                    const lower = userText.toLowerCase();
+                    const name = this.profile.nama;
+                    const age = this.profile.umur;
+                    
+                    let answer = "";
+                    if (lower.includes('diri') || lower.includes('percaya') || lower.includes('insecure')) {
+                        answer = `Terima kasih sudah membagikan perasaanmu, ${name}. Di usia ${age} tahun, fase mencari identitas dan membandingkan diri memang sangat rentan memicu rasa kurang percaya diri. Kamu sering mengamati pencapaian luar biasa orang lain di media sosial atau lingkungan sekolah, lalu tanpa sadar mendakwa dirimu sendiri. \n\nIngatlah, setiap orang berkembang di garis jalannya sendiri. Bagaimana kalau kita coba satu langkah kecil hari ini? Sebutkan satu hal kecil saja yang kamu lakukan dengan baik kemarin, sekecil apa pun itu. Aku ada di sini mendengarmu.`;
+                    } else if (lower.includes('sekolah') || lower.includes('belajar') || lower.includes('nilai')) {
+                        answer = `Kekhawatiran tentang akademis dan masa depan terasa sangat nyata ya, ${name}. Tekanan untuk selalu sempurna sering kali membuat batin kita lelah bahkan buntu (burnout). \n\nCobalah untuk memberi jeda istirahat yang adil bagi kepalamu. Gunakan teknik belajar Pomodoro (25 menit belajar fokus, 5 menit istirahat penuh tanpa membuka gawai). Ingatlah bahwa nilai rapor tidak pernah melambangkan batas penuh harga dirimu sebagai manusia seutuhnya. Ada yang ingin kamu diskusikan tentang hambatan belajar ini?`;
+                    } else if (lower.includes('temen') || lower.includes('teman') || lower.includes('bully') || lower.includes('hakim')) {
+                        answer = `Aku bisa merasakan kesedihan dan kebimbangan di hatimu, ${name}. Dinamika pertemanan remaja memang terkadang penuh gejolak dan sangat melelahkan jika kita terlalu memaksakan diri agar disukai semua orang. \n\nKamu berhak dikelilingi oleh orang-orang yang menghargai keberadaanmu tanpa syarat penilaian negatif. Jika pertemanan tersebut justru membuat energimu terkuras atau diserang perundungan, tidak apa-apa untuk menarik batasan diri (boundaries) secara asertif demi kesehatan mentalmu. Ceritakan padaku, perlakuan apa dari temanmu yang paling membuat batinmu tertekan baru-baru ini?`;
+                    } else if (lower.includes('patah hati') || lower.includes('putus') || lower.includes('pacar') || lower.includes('cinta')) {
+                        answer = `Kehilangan seseorang yang dekat memang menimbulkan luka emosional yang teramat sangat perih, ${name}. Menangis, sedih, atau merasa hampa itu sangat wajar. Itu membuktikan bahwa kamu memiliki hati yang tulus.\n\nJangan memaksa dirimu untuk langsung segera pulih total dalam sehari. Berikan waktu bagi hatimu berduka secara sehat, namun jangan lupa untuk tetap menyayangi dirimu. Mari kita salurkan luapan kesedihan ini ke hal kecil yang produktif atau tulislah ceritamu di buku batin "Catatan Emosiku" agar beban dadamu berkurang sejenak. Aku siap menemanimu melaluinya.`;
+                    } else if (lower.includes('kuis') || lower.includes('skor')) {
+                        answer = `Terima kasih sudah meluangkan waktu menganalisis dirimu lewat Kuis, ${name}. Hasil kuis itu adalah pintu masuk untuk kita lebih aware pada tanda-tanda kelelahan batin. \n\nMari kita bicarakan bersama: apa hal atau peristiwa spesifik yang belakangan ini paling menguras energimu? Sampaikan saja pelan-pelan di sini, ini adalah ruang amanmu, ${name}.`;
+                    } else if (lower.includes('makassar') || lower.includes('sos') || lower.includes('sulsel') || lower.includes('darurat')) {
+                        answer = `Sahabatku ${name}, dalam kondisi darurat kejiwaan yang ekstrim atau jika ada keinginan untuk menyakiti fisik Anda, mohon prioritaskan keselamatan fisik batin Anda. \n\nAnda dapat mendatangi layanan **UGD Jiwa 24 Jam di RSKD Dadi Sulsel (Jl. Lanto Daeng Pasewang)** atau menghubungi **WA Emergency 0822-9799-7778** untuk tim tanggap cepat. Kami ada di sisi Anda, Anda tidak sendiri.`;
+                    } else {
+                        answer = `Aku mendengar seluruh keluh kesahmu dengan saksama, ${name}. Sangat dibutuhkan keberanian besar untuk mengekspresikan isi pikiran dan perasaan yang tak kasat mata ini. \n\nSebagai sahabat bimbingan yang peduli, aku ingin memeluk kecemasanmu itu. Pada usia ${age} tahun ini, memang ada kalanya dunia luar menuntut terlalu banyak dari pundakmu. Mari kita urai benang kusut yang sedang menyumbat batinmu secara sehat. Ceritakan lagi bagian mana yang paling membebani dadamu saat ini? Aku akan terus menyimak.`;
+                    }
+                    return answer;
+                },
+
+                // Send a typing message
+                submitMessage() {
+                    if (!this.newMessageText.trim() || this.chatLoading) return;
+                    
+                    const userMsg = {
+                        id: 'usr-' + Date.now(),
+                        sender: 'user',
+                        text: this.newMessageText,
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    this.messages.push(userMsg);
+                    const queryText = this.newMessageText;
+                    this.newMessageText = '';
+                    this.chatLoading = true;
+                    
+                    localStorage.setItem('ruang_tuduh_chat_history', JSON.stringify(this.messages));
+                    this.$nextTick(() => { this.scrollToBottom(); });
+
+                    // Simulating AI delay
+                    setTimeout(() => {
+                        const botReply = this.getSimulatedCounselResponse(queryText);
+                        this.messages.push({
+                            id: 'bot-' + Date.now(),
+                            sender: 'bot',
+                            text: botReply,
+                            timestamp: new Date().toISOString()
+                        });
+                        this.chatLoading = false;
+                        localStorage.setItem('ruang_tuduh_chat_history', JSON.stringify(this.messages));
+                        this.$nextTick(() => { this.scrollToBottom(); this.reinitLucide(); });
+                    }, 1200);
+                },
+
+                // Send prompt directly via clicking help chips
+                sendSuggestedPrompt(text) {
+                    this.activeTab = 'chat';
+                    this.newMessageText = text;
+                    this.$nextTick(() => { this.submitMessage(); });
+                },
+
+                clearChat() {
+                    if (confirm("Ingin menghapus seluruh riwayat percakapan di ruangan curhat ini?")) {
+                        this.messages = [];
+                        localStorage.removeItem('ruang_tuduh_chat_history');
+                        this.setInitialWelcome();
+                    }
+                },
+
+                // Articles filtered
+                getFilteredArticles() {
+                    if (this.selectedCategory === 'all') return this.articles;
+                    return this.articles.filter(a => a.category === this.selectedCategory);
+                },
+
+                // Journal Management
+                submitJournal() {
+                    if (!this.journalNote.trim() && !this.journalGratitude.trim()) return;
+
+                    // Simulated interactive AI feedback based on mood chosen
+                    let feedback = "";
+                    const moodLabel = this.moodConfig[this.selectedMood].label;
+                    const name = this.profile.nama;
+                    
+                    if (this.selectedMood === 'tenang') {
+                        feedback = `Senang sekali mendengarnya, ${name}. Menjaga kepasrahan batin di level tenang adalah kemenangan batin yang patut disyukuri. Semoga kedamaian ini terus membersamaimu esok hari ya.`;
+                    } else if (this.selectedMood === 'cemas') {
+                        feedback = `Kecemasan adalah pengingat bahwa kamu peduli, ${name}. Tapi ingat, napasmu lebih besar dari masalahmu. Tarik napas sehat, lepaskan pelan, kamu sudah berjuang luar biasa tangguh hari ini.`;
+                    } else if (this.selectedMood === 'sedih') {
+                        feedback = `Selimut air mata adalah cara batin membersihkan kepiluan, ${name}. Tidak apa-apa untuk bersedih sejenak. Aku ada sebagai pelindung ceritamu. Sembari beristirahat, dekaplah dirimu dengan kehangatan tulus.`;
+                    } else if (this.selectedMood === 'marah') {
+                        feedback = `Kemarahan adalah emosi yang valid saat keadaan tidak adil bagimu, ${name}. Salurkan amarah ini dalam secarik kertas atau dengan berjalan kaki santai demi merelease ketegangan otot tubuhmu.`;
+                    } else if (this.selectedMood === 'lelah') {
+                        feedback = `Fisik dan batinmu sedang mengirim sinyal darurat butuh istirahat penuh, ${name}. Letakkan gadgetmu, minumlah segelas air putih hangat, dan tidurlah lebih cepat malam ini.`;
+                    } else { // overwhelming
+                        feedback = `Terlalu banyak hal yang berkecamuk di kepalamu sekaligus ya, ${name}. Mari kita bagi menjadi potongan masalah kecil. Fokuslah hanya pada apa yang bisa kamu kendalikan satu jam ke depan.`;
+                    }
+
+                    const newEntry = {
+                        id: 'jrn-' + Date.now(),
+                        mood: this.selectedMood,
+                        intensity: this.journalIntensity,
+                        note: this.journalNote,
+                        gratitude: this.journalGratitude,
+                        aiReflection: feedback,
+                        date: new Date().toISOString()
+                    };
+
+                    this.journalEntries.unshift(newEntry);
+                    localStorage.setItem('ruang_tuduh_journals', JSON.stringify(this.journalEntries));
+
+                    // Reset form
+                    this.journalNote = '';
+                    this.journalGratitude = '';
+                    this.selectedMood = 'tenang';
+                    this.journalIntensity = 3;
+
+                    this.$nextTick(() => { this.reinitLucide(); });
+                },
+
+                deleteJournal(id) {
+                    if (confirm("Hapus catatan emosi ini dari riwayat permanen batinmu?")) {
+                        this.journalEntries = this.journalEntries.filter(item => item.id !== id);
+                        localStorage.setItem('ruang_tuduh_journals', JSON.stringify(this.journalEntries));
+                        this.$nextTick(() => { this.reinitLucide(); });
+                    }
+                },
+
+                // Kuis beban batin controller
+                chooseAnswer(score) {
+                    this.quizScore += score;
+                    this.quizIndex++;
+                },
+
+                getQuizFeedback(score) {
+                    if (score <= 4) {
+                        return {
+                            level: "Daya Tahan Batin Stabil & Sehat",
+                            desc: "Akumulasi ketegangan batin Anda berada dalam skala yang sangat aman dan terkontrol dengan baik. Anda memiliki ketahanan emosional yang kokoh dalam memproses dinamika kehidupan remaja.",
+                            tip: "Pertahankan kebiasaan bersyukur harian Anda dan jalin komunikasi terbuka secara asertif.",
+                            tipLabel: "Kelola gaya hidup tenang"
+                        };
+                    } else if (score <= 9) {
+                        return {
+                            level: "Kelelahan Batin Ringan - Sedang (Cukup Lelah)",
+                            desc: "Anda mulai merasakan akumulasi tekanan mental, kelelahan fisik, atau stres yang mulai mengganggu ketenangan tidur dan kemampuan konsentrasi Anda sehari-hari.",
+                            tip: "Sempatkan untuk melakukan detoks gawai (social media detox) 1 hari saja, kurangi tidur terlalu larut, dan perbanyak meluangkan waktu berbagi keluh kesah bersama bimbingan AI.",
+                            tipLabel: "Dapatkan istirahat teratur"
+                        };
+                    } else {
+                        return {
+                            level: "Beban Emosi / Tingkat Stres Tinggi (Segera Butuh Pendamping)",
+                            desc: "Kondisi batin Anda sedang mengalami kepenatan atau gejolak emosi berat yang teramat menekan produktivitas dan kebahagiaan harian Anda. Anda tidak harus menahannya sendirian.",
+                            tip: "Sangat disarankan untuk mencurahkan semua keresahan ini secara terperinci kepada AI Counselor, atau bicaralah secara langsung via WhatsApp Crisis Center kami.",
+                            tipLabel: "Segera lakukan relaksasi mendalam"
+                        };
+                    }
+                },
+
+                resetQuiz() {
+                    this.quizIndex = 0;
+                    this.quizScore = 0;
+                },
+
+                // Format utilitises
+                formatTime(isoString) {
+                    try {
+                        const date = new Date(isoString);
+                        return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                    } catch(e) {
+                        return '';
+                    }
+                },
+
+                formatDate(isoString) {
+                    try {
+                        const date = new Date(isoString);
+                        return date.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
+                    } catch(e) {
+                        return '';
+                    }
+                },
+
+                scrollToBottom() {
+                    const el = document.getElementById('chat-messages-container');
+                    if (el) {
+                        setTimeout(() => {
+                            el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+                        }, 50);
+                    }
+                },
+
+                reinitLucide() {
+                    if (window.lucide) {
+                        window.lucide.createIcons();
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
